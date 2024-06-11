@@ -16,6 +16,7 @@ return (
     <div>
         <button className="btn btn-link" onClick={() => window.location.href = '/'}>Home</button>
         <button className="btn btn-link" onClick={() => window.location.href = '/login'}>Login</button>
+        <button className="btn btn-link" onClick={() => window.location.href = '/recipes'}>Recipes</button>
         </div>
     </div>
     </div>
