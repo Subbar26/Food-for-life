@@ -1,0 +1,58 @@
+/* RecipeCard.css */
+.center-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80%; /* Ajusta la altura para que ocupe toda la pantalla */
+}
+
+.container {
+    max-width: 1400px;
+}
+
+.card {
+    max-width: 800px;
+    background-color: #E0F2F1; /* Azul clarito */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card-body {
+    text-align: left;
+}
+
+.info-container {
+    background-color: #C8E6C9; /* Fondo del contenedor */
+    border-radius: 8px; /* Bordes redondeados */
+    margin-bottom: 10px; /* Espacio entre contenedores */
+    padding: 10px; /* Espacio interno */
+    display: flex;
+    align-items: center;
+}
+
+.icon-container {
+    margin-right: 20px; /* Espacio entre el icono y el texto */
+}
+
+.back-button {
+    display: inline-block;
+    color: black;
+    background-color: #C8E6C9; /* Verde claro */
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.back-button:hover {
+    background-color: #A5D6A7; /* Verde más oscuro al hacer hover */
+}
+
+@media (max-width: 800px) {
+    .card {
+        width: 100%;
+    }
+}

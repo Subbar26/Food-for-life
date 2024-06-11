@@ -1,0 +1,116 @@
+.contenedor{
+    margin: auto 0;
+    border-radius: solid 1px black;
+}
+
+.container {
+    width: 80%; /* Ancho fijo */
+    max-width: 100%; /* Máximo ancho */
+    border-radius: solid 1px black;
+}
+
+.header {
+    background-color: #2D3436;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 3px 6px 0 #555;
+    border-radius: 10px;
+    max-width: 1200px;
+    margin: 20px auto;
+    height: 80px;
+}
+
+.app-name {
+    display: flex;
+    align-items: center;
+}
+
+.app-icon{
+    width: 40px; /* Tamaño reducido del logo */
+    height: 40px; /* Tamaño reducido del logo */
+    margin-right: 10px; /* Ajusta el espacio entre el logo y el texto */
+    border-radius: 10px;
+}
+
+.search-component {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background-color: white;
+    width: 100%;
+    max-width: 500px;
+    background-color: #FFFFFF;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    margin-left: 10px;
+    font-size: 16px;
+    flex-grow: 1;
+}
+
+.search-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.card-img-top {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.link-button {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.link-button:hover {
+    color: #eb3300;
+}
+
+.nutrition-info {
+    margin-top: 10px;
+}
+
+.nutrition-info p {
+    font-size: 14px;
+    margin: 5px 0;
+    color: #555;
+    text-align: center;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
