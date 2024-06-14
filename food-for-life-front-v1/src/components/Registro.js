@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Registro.css';
 
 const Register = () => {
@@ -155,6 +155,7 @@ const Register = () => {
 
     return (
         <div className="register-container">
+            {registerError && <div className="alert alert-danger" role="alert">{registerError}</div>}
             <form onSubmit={handleSubmit}>
                 <div className="section">
                     <h3>Datos personales</h3>
@@ -235,7 +236,7 @@ const Register = () => {
                 </div>
 
                 <button type="submit" className="btn btn-primary">Siguiente</button>
-                <button type="button" className="btn btn-secondary">Cancelar</button>
+                <a href='/login'><button type="button" className="btn btn-secondary">Cancelar</button></a>
             </form>
         </div>
     );
