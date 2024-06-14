@@ -1,34 +1,79 @@
-.container {
-    max-width: 600px;
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+.contenedor1_login .contenedor2_login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    width: 35%;
 }
 
-.card.custom-card {
-    padding: 20px;
-    border-radius: 10px;
-    border: none;
+.login-card{
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.card.custom-card img.tamaño-imagen {
-    width: 150px;
-    height: auto;
+
+.header-card h5 {
+    font-family: 'Lobster', cursive;
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.login-card img.tamaño-imagen {
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.login-card .titulo-card{
+    margin-bottom: 0px;
+}
+
+.contenedor2_login .formulario-login{
+    background-color: black;
 }
 
 .card.custom-card .form-control {
     height: 45px;
     font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
 }
 
-.card.custom-card button {
-    height: 45px;
-    font-size: 16px;
-    font-weight: bold;
+.card.custom-card button:hover {
+    background-color: #46922a;
+    border-color: #46922a;
 }
 
-.card.custom-card .text-primary {
-    cursor: pointer;
+.card.custom-card .link-button{
     text-decoration: underline;
 }
 
-.card.custom-card .text-primary:hover {
-    color: #0056b3;
+.card.custom-card .link-button:hover {
+    color: #46922a;
+    text-decoration: underline;
+}
+
+/* Validación de input */
+.card.custom-card .input-group .input-group-text {
+    background-color: white;
+    border-left: 0;
+}
+
+.card.custom-card .is-valid {
+    border-color: #32CD32;
+}
+
+.card.custom-card .is-invalid {
+    border-color: #e3342f;
+}
+
+.card.custom-card .valid-feedback,
+.card.custom-card .invalid-feedback {
+    display: block;
+}
+
+.input-group-append{
+    display: flex;
 }

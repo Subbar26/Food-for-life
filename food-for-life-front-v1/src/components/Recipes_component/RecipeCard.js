@@ -111,7 +111,7 @@ const RecipeCard = () => {
         <div className="center-container">
             <div className="container">
                 <div className="container d-flex justify-content-center">
-                    <div className="card mb-3">
+                    <div className="card mb-3 card-recipe-information">
                         <div className="row g-0">
                             <div className="col-md-4">
                                 <img src={recipe.image} alt={translatedTitle} className="img-fluid rounded-start" />

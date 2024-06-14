@@ -13,6 +13,7 @@ const Recipes = () => {
     const [nutritionData, setNutritionData] = useState({});
     const [translatedTitles, setTranslatedTitles] = useState({});
 
+
     const translatedTextCache = useMemo(() => ({}), []);
 
     useEffect(() => {
@@ -92,7 +93,7 @@ const Recipes = () => {
             return translatedTextCache[text];
         } catch (error) {
             console.error('Error translating text:', error);
-            return text; 
+            return text;
         }
     }, [translatedTextCache]);
 
@@ -112,7 +113,7 @@ const Recipes = () => {
     };
 
     return (
-        <div className='contenedor'>
+        <div className="contenedor">
             <div className="container">
                 <header className="header">
                     <div className="app-name">
@@ -140,10 +141,10 @@ const Recipes = () => {
                     <div className="row row-cols-1 row-cols-md-4 g-4">
                         {recipes.map((recipe) => (
                             <div key={recipe.id} className="col">
-                                <div className="card h-100">
+                                <div className="card h-100 card-recipe">
                                     <img src={recipe.image} alt={recipe.title} className="card-img-top" />
-                                    <div className="card-body">
-                                        <Link to={`/recipes/${recipe.id}`} className="link-button">
+                                    <div className="card-body card_body">
+                                        <Link to={`/recipes/${recipe.id}`} className="link-button title">
                                             {translatedTitles[recipe.id]}
                                         </Link>
                                         {nutritionData[recipe.id] ? (

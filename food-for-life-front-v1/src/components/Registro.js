@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Registro.css';
 
-const Register = ({ setShowLogin }) => {
+const Register = () => {
     const [formData, setFormData] = useState({
         sexo: '',
         peso_actual: '',
@@ -25,12 +25,10 @@ const Register = ({ setShowLogin }) => {
         const { name, value } = e.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
 
-        // Validar el campo actual y establecer su estado en formErrors
         const errors = { ...formErrors };
         if (!value) {
             errors[name] = `El campo ${name.replace('_', ' ')} es obligatorio`;
         } else {
-            // Validar campo específico según su nombre
             switch (name) {
                 case 'peso_actual':
                     if (value < 0 || value > 999) {
@@ -69,9 +67,9 @@ const Register = ({ setShowLogin }) => {
                         delete errors[name];
                     }
                     break;
-                case 'nombre_miembro':
+                case 'nombre_usuario':
                     if (value.trim().length === 0) {
-                        errors[name] = 'El nombre del miembro es obligatorio';
+                        errors[name] = 'El nombre de usuario es obligatorio';
                     } else {
                         delete errors[name];
                     }
@@ -85,13 +83,13 @@ const Register = ({ setShowLogin }) => {
                     }
                     break;
                 case 'password':
-                    if (value.length < 6) {
-                        errors[name] = 'La contraseña debe tener al menos 6 caracteres';
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+                    if (!passwordRegex.test(value)) {
+                        errors[name] = 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial';
                     } else {
                         delete errors[name];
                     }
                     break;
-                // Agregar más validaciones según sea necesario para otros campos
                 default:
                     delete errors[name];
                     break;
@@ -102,8 +100,7 @@ const Register = ({ setShowLogin }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        // Validar cada campo del formulario
+
         const errors = {};
         if (!formData.sexo) {
             errors.sexo = 'Seleccione su sexo';
@@ -135,14 +132,12 @@ const Register = ({ setShowLogin }) => {
         if (!formData.password) {
             errors.password = 'Ingrese su contraseña';
         }
-    
-        // Si hay errores, establecerlos en el estado formErrors y salir de la función
+
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
             return;
         }
-    
-        // Si no hay errores, continuar con el envío del formulario
+
         try {
             formData.fecha_nacimiento = new Date(formData.fecha_nacimiento); // Convertir fecha_nacimiento a Date
             const submitData = { ...formData };
@@ -157,15 +152,13 @@ const Register = ({ setShowLogin }) => {
             }
         }
     };
-    
-
 
     return (
         <div className='container mt-5'>
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="card card-body shadow custom-card">
-                        <h3 className="text-center mb-4">Crear Cuenta</h3>
+                        <h3>Crear Cuenta</h3>
                         {registerError && <div className="alert alert-danger" role="alert">{registerError}</div>}
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
@@ -219,7 +212,7 @@ const Register = ({ setShowLogin }) => {
                                 {formErrors.peso_meta && <div className="invalid-feedback">{formErrors.peso_meta}</div>}
                             </div>
                             <div className="mb-3">
-                                <label className="form-label">Nombre del Miembro:</label>
+                                <label className="form-label">Nombre de Usuario:</label>
                                 <input type="text" className={`form-control ${formErrors.nombre_usuario ? 'is-invalid' : ''}`} name="nombre_usuario" value={formData.nombre_usuario} onChange={handleChange} />
                                 {formErrors.nombre_usuario && <div className="invalid-feedback">{formErrors.nombre_usuario}</div>}
                             </div>
@@ -231,10 +224,12 @@ const Register = ({ setShowLogin }) => {
                             <div className="mb-3">
                                 <label className="form-label">Contraseña:</label>
                                 <input type="password" className={`form-control ${formErrors.password ? 'is-invalid' : ''}`} name="password" value={formData.password} onChange={handleChange} />
-                                {formErrors.email && <div className="invalid-feedback">{formErrors.email}</div>}
+                                {formErrors.password && <div className="invalid-feedback">{formErrors.password}</div>}
                             </div>
-                            <button type="submit" className="btn btn-primary w-100">Registrarse</button>
-                            <p>¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link></p>
+                            <button type="submit" className="btn btn-primary">Registrarse</button>
+                            <div className="mt-3">
+                                <Link to="/login">¿Ya tienes una cuenta? Inicia sesión aquí</Link>
+                            </div>
                         </form>
                     </div>
                 </div>
