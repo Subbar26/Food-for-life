@@ -1,38 +1,100 @@
-.custom-card {
-    max-width: 500px;
+.register-container {
+    max-width: 600px;
     margin: 0 auto;
-    background-color: #f8f9fa;
+    padding: 20px;
+    background-color: #fff;
     border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.custom-card h3 {
+h2 {
     text-align: center;
+    color: #4CAF50;
+}
+
+.section {
     margin-bottom: 20px;
 }
 
-.form-label {
+.section h3 {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: bold;
 }
 
-.btn-primary {
-    background-color: #28a745;
-    border-color: #28a745;
+.form-group input,
+.form-group select {
     width: 100%;
-    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.btn-primary:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+.radio-group {
+    display: flex;
+    gap: 1px;
+    align-items: center;
 }
 
-.form-check-input {
-    margin-top: 6px;
+.radio-group input {
+    margin-top: 3px;
+    align-items: center;
 }
 
-.invalid-feedback {
-    color: #dc3545;
-    font-size: 12px;
+.radio-group .form-check-inline {
+    display: flex;
+    align-items: center;
+
+}
+
+.radio-group .form-check-label {
+    margin-left: 10px; 
+    align-items: center;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 15px; 
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: #ccc;
+    color: #000;
+}
+
+.btn + .btn {
+    margin-top: 10px;
+}
+
+.form-check-label {
+    display: flex;
+    align-items: center;
 }
