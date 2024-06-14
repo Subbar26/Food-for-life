@@ -154,86 +154,89 @@ const Register = () => {
     };
 
     return (
-        <div className='container mt-5'>
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="card card-body shadow custom-card">
-                        <h3>Crear Cuenta</h3>
-                        {registerError && <div className="alert alert-danger" role="alert">{registerError}</div>}
-                        <form onSubmit={handleSubmit}>
-                            <div className="mb-3">
-                                <label className="form-label">Sexo:</label>
-                                <div>
-                                    <div className="form-check form-check-inline">
-                                        <input className="form-check-input" type="radio" name="sexo" value="Femenino" onChange={handleChange} />
-                                        <label className="form-check-label">Femenino</label>
-                                    </div>
-                                    <div className="form-check form-check-inline">
-                                        <input className="form-check-input" type="radio" name="sexo" value="Masculino" onChange={handleChange} />
-                                        <label className="form-check-label">Masculino</label>
-                                    </div>
-                                    {formErrors.sexo && <div className="text-danger">{formErrors.sexo}</div>}
-                                </div>
+        <div className="register-container">
+            <form onSubmit={handleSubmit}>
+                <div className="section">
+                    <h3>Datos personales</h3>
+                    <h4>Sexo</h4>
+                    <div className="radio-group">
+                            <div className="form-check form-check-inline">
+                                <input className="form-check-input" type="radio" name="sexo" value="Femenino" onChange={handleChange} />
+                                <label className="form-check-label">Femenino</label>
                             </div>
-                            <div className="mb-3">
-                                <label className="form-label">Peso Actual (kg):</label>
-                                <input type="number" className={`form-control ${formErrors.peso_actual ? 'is-invalid' : ''}`} name="peso_actual" value={formData.peso_actual} onChange={handleChange} />
-                                {formErrors.peso_actual && <div className="invalid-feedback">{formErrors.peso_actual}</div>}
+                            <div className="form-check form-check-inline">
+                                <input className="form-check-input" type="radio" name="sexo" value="Masculino" onChange={handleChange} />
+                                <label className="form-check-label">Masculino</label>
                             </div>
-                            <div className="mb-3">
-                                <label className="form-label">Altura (cm):</label>
-                                <input type="number" className={`form-control ${formErrors.altura ? 'is-invalid' : ''}`} name="altura" value={formData.altura} onChange={handleChange} />
-                                {formErrors.altura && <div className="invalid-feedback">{formErrors.altura}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Fecha de Nacimiento:</label>
-                                <input type="date" className={`form-control ${formErrors.fecha_nacimiento ? 'is-invalid' : ''}`} name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} />
-                                {formErrors.fecha_nacimiento && <div className="invalid-feedback">{formErrors.fecha_nacimiento}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Nivel de Actividad:</label>
-                                <select className={`form-select ${formErrors.nivel_actividad ? 'is-invalid' : ''}`} name="nivel_actividad" value={formData.nivel_actividad} onChange={handleChange}>
-                                    <option value="">Seleccione...</option>
-                                    <option value="Sedentario">Sedentario</option>
-                                    <option value="Baja Actividad">Baja Actividad</option>
-                                    <option value="Activo">Activo</option>
-                                    <option value="Muy Activo">Muy Activo</option>
-                                </select>
-                                {formErrors.nivel_actividad && <div className="invalid-feedback">{formErrors.nivel_actividad}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Dieta Objetivo:</label>
-                                <input type="text" className={`form-control ${formErrors.dieta_objetivo ? 'is-invalid' : ''}`} name="dieta_objetivo" value={formData.dieta_objetivo} onChange={handleChange} />
-                                {formErrors.dieta_objetivo && <div className="invalid-feedback">{formErrors.dieta_objetivo}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Peso Meta (kg):</label>
-                                <input type="number" className={`form-control ${formErrors.peso_meta ? 'is-invalid' : ''}`} name="peso_meta" value={formData.peso_meta} onChange={handleChange} />
-                                {formErrors.peso_meta && <div className="invalid-feedback">{formErrors.peso_meta}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Nombre de Usuario:</label>
-                                <input type="text" className={`form-control ${formErrors.nombre_usuario ? 'is-invalid' : ''}`} name="nombre_usuario" value={formData.nombre_usuario} onChange={handleChange} />
-                                {formErrors.nombre_usuario && <div className="invalid-feedback">{formErrors.nombre_usuario}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Correo Electrónico:</label>
-                                <input type="email" className={`form-control ${formErrors.email ? 'is-invalid' : ''}`} name="email" value={formData.email} onChange={handleChange} />
-                                {formErrors.email && <div className="invalid-feedback">{formErrors.email}</div>}
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Contraseña:</label>
-                                <input type="password" className={`form-control ${formErrors.password ? 'is-invalid' : ''}`} name="password" value={formData.password} onChange={handleChange} />
-                                {formErrors.password && <div className="invalid-feedback">{formErrors.password}</div>}
-                            </div>
-                            <button type="submit" className="btn btn-primary">Registrarse</button>
-                            <div className="mt-3">
-                                <Link to="/login">¿Ya tienes una cuenta? Inicia sesión aquí</Link>
-                            </div>
-                        </form>
+                    </div>
+                    <div className="form-group">
+                        <label>Peso Actual (kg):</label>
+                        <input type="number" name="peso_actual" value={formData.peso_actual} onChange={handleChange} />
+                        {formErrors.peso_actual && <div className="error">{formErrors.peso_actual}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Altura (cm):</label>
+                        <input type="number" name="altura" value={formData.altura} onChange={handleChange} />
+                        {formErrors.altura && <div className="error">{formErrors.altura}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Fecha de nacimiento:</label>
+                        <input type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} />
+                        {formErrors.fecha_nacimiento && <div className="error">{formErrors.fecha_nacimiento}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Nivel de Actividad:</label>
+                        <select name="nivel_actividad" value={formData.nivel_actividad} onChange={handleChange}>
+                            <option value="">Seleccione...</option>
+                            <option value="Sedentario">Sedentario</option>
+                            <option value="Baja Actividad">Baja Actividad</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Muy Activo">Muy Activo</option>
+                        </select>
+                        {formErrors.nivel_actividad && <div className="error">{formErrors.nivel_actividad}</div>}
                     </div>
                 </div>
-            </div>
+
+                <div className="section">
+                    <h3>Mis Metas</h3>
+                    <div className="form-group">
+                        <label>Dieta Objetivo:</label>
+                        <select name="dieta_objetivo" value={formData.dieta_objetivo} onChange={handleChange}>
+                            <option value="Mantener mi peso actual">Mantener mi peso actual</option>
+                            <option value="Perder peso">Perder peso</option>
+                            <option value="Ganar peso">Ganar peso</option>
+                        </select>
+                        {formErrors.dieta_objetivo && <div className="error">{formErrors.dieta_objetivo}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Peso meta (kg):</label>
+                        <input type="number" name="peso_meta" value={formData.peso_meta} onChange={handleChange} />
+                        {formErrors.peso_meta && <div className="error">{formErrors.peso_meta}</div>}
+                    </div>
+                </div>
+
+                <div className="section">
+                    <h3>Detalles de la cuenta</h3>
+                    <div className="form-group">
+                        <label>Nombre del Miembro:</label>
+                        <input type="text" name="nombre_usuario" value={formData.nombre_usuario} onChange={handleChange} />
+                        {formErrors.nombre_usuario && <div className="error">{formErrors.nombre_usuario}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Correo Electrónico:</label>
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} />
+                        {formErrors.email && <div className="error">{formErrors.email}</div>}
+                    </div>
+                    <div className="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" name="password" value={formData.password} onChange={handleChange} />
+                        {formErrors.password && <div className="error">{formErrors.password}</div>}
+                    </div>
+                </div>
+
+                <button type="submit" className="btn btn-primary">Siguiente</button>
+                <button type="button" className="btn btn-secondary">Cancelar</button>
+            </form>
         </div>
     );
 };
