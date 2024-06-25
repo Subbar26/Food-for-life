@@ -67,7 +67,7 @@ const Login = () => {
             <div className="container contenedor2_login">
                 <div className="card shadow custom-card login-card">
                     <div className="mb-3 text-center header-card">
-                        <h5 className="card-title">Iniciar sesión</h5>
+                        <h1 className="card-title">Iniciar sesión</h1>
                         <img src={logo} alt="Logo" className="tamaño-imagen" />
                     </div>
                     <form onSubmit={handleLogin} className="mt-2 formulario">
@@ -84,7 +84,7 @@ const Login = () => {
                                 <input
                                     type="emailPlease"
                                     className={`form-control pastel-input`}
-                                    placeholder='Email'
+                                    placeholder='Correo electrónico'
                                     name="email"
                                     value={email}
                                     onChange={(e) => {
@@ -110,7 +110,7 @@ const Login = () => {
                                 <input
                                     type="password"
                                     className={`form-control pastel-input`}
-                                    placeholder='Password'
+                                    placeholder='Contraseña'
                                     name="password"
                                     value={password}
                                     onChange={(e) => {

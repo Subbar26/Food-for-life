@@ -12,23 +12,63 @@ const Recipes = () => {
     const [error, setError] = useState(null);
     const [nutritionData, setNutritionData] = useState({});
     const [translatedTitles, setTranslatedTitles] = useState({});
+    const [noResults, setNoResults] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = 2;
 
+    const translatedTitlesCache = useMemo(() => ({}), []);
 
-    const translatedTextCache = useMemo(() => ({}), []);
+    const translateText = useCallback(async (text, targetLanguage) => {
+        if (translatedTitlesCache[text]) {
+            return translatedTitlesCache[text];
+        }
+        const apiKey = 'AIzaSyCQYwPuGifUdqMUEJtOOziVQy7Ne9wcAFg';
+        const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ q: text, target: targetLanguage }),
+            });
+            const data = await response.json();
+            translatedTitlesCache[text] = data.data.translations[0].translatedText;
+            return translatedTitlesCache[text];
+        } catch (error) {
+            console.error('Error translating text:', error);
+            return text;
+        }
+    }, [translatedTitlesCache]);
+
+    const translateRecipeTitles = useCallback(async (recipes) => {
+        const translatedTitles = {};
+        for (const recipe of recipes) {
+            translatedTitles[recipe.id] = await translateText(recipe.title, 'es');
+        }
+        setTranslatedTitles(translatedTitles);
+    }, [translateText]);
 
     useEffect(() => {
         const fetchRecipes = async () => {
             setLoading(true);
+            setNoResults(false); // Reset no results state before search
+            setError(null);
             try {
+                const translatedQuery = await translateText(searchQuery, 'en');
                 const response = await recipeApi.get('/recipes/complexSearch', {
                     params: {
-                        query: searchQuery,
-                        number: 4,
+                        query: translatedQuery,
+                        number: 8,
+                        offset: 0,
                         fields: 'title,summary,ingredients,tags,image',
                     },
                 });
-                setRecipes(response.data.results);
-                response.data.results.forEach(recipe => {
+                const results = response.data.results;
+                setRecipes(results);
+                if (results.length === 0) {
+                    setNoResults(true);
+                }
+                await translateRecipeTitles(results);
+                results.forEach(recipe => {
                     fetchNutritionData(recipe.id);
                 });
             } catch (error) {
@@ -41,20 +81,27 @@ const Recipes = () => {
         if (searchQuery) {
             fetchRecipes();
         }
-    }, [searchQuery]);
+    }, [searchQuery, translateText, translateRecipeTitles]);
 
     useEffect(() => {
         const fetchDefaultRecipes = async () => {
             setLoading(true);
+            setNoResults(false); // Reset no results state before search
+            setError(null);
             try {
                 const response = await recipeApi.get('/recipes/complexSearch', {
                     params: {
-                        number: 4,
+                        number: 8,
                         fields: 'title,summary,ingredients,tags,image',
                     },
                 });
-                setRecipes(response.data.results);
-                response.data.results.forEach(recipe => {
+                const results = response.data.results;
+                setRecipes(results);
+                if (results.length === 0) {
+                    setNoResults(true);
+                }
+                await translateRecipeTitles(results);
+                results.forEach(recipe => {
                     fetchNutritionData(recipe.id);
                 });
             } catch (error) {
@@ -65,7 +112,7 @@ const Recipes = () => {
         };
 
         fetchDefaultRecipes();
-    }, []);
+    }, [translateRecipeTitles]);
 
     const fetchNutritionData = async (recipeId) => {
         try {
@@ -76,48 +123,22 @@ const Recipes = () => {
         }
     };
 
-    const translateText = useCallback(async (text, targetLanguage) => {
-        if (translatedTextCache[text]) {
-            return translatedTextCache[text];
-        }
-        const apiKey = 'AIzaSyCQYwPuGifUdqMUEJtOOziVQy7Ne9wcAFg';
-        const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ q: text, target: targetLanguage }),
-            });
-            const data = await response.json();
-            translatedTextCache[text] = data.data.translations[0].translatedText;
-            return translatedTextCache[text];
-        } catch (error) {
-            console.error('Error translating text:', error);
-            return text;
-        }
-    }, [translatedTextCache]);
-
-    useEffect(() => {
-        const translateRecipeTitles = async () => {
-            const translatedTitles = {};
-            for (const recipe of recipes) {
-                translatedTitles[recipe.id] = await translateText(recipe.title, 'es');
-            }
-            setTranslatedTitles(translatedTitles);
-        };
-        translateRecipeTitles();
-    }, [recipes, searchQuery, translateText]);
-
     const handleSearchInputChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const currentRecipes = recipes.slice((currentPage - 1) * 4, currentPage * 4);
+
     return (
-        <div className="contenedor">
-            <div className="container">
-                <header className="header">
-                    <div className="app-name">
-                        <img src={logo} alt="Logo" className="app-icon" />
+        <div className="contenedor-pr">
+            <div className="container container-recipes">
+                <header className="header header-recipes">
+                    <div className="nombre-cabecera">
+                        <img src={logo} alt="Logo" className="app-icon icono-cabecera" />
                         Buscador de Recetas
                     </div>
                     <div className="search-component">
@@ -129,6 +150,9 @@ const Recipes = () => {
                             value={searchQuery}
                             onChange={handleSearchInputChange}
                         />
+                        <div className="pagination-info">
+                            <span>Página {currentPage} de {totalPages}</span>
+                        </div>
                     </div>
                 </header>
                 {loading ? (
@@ -137,31 +161,69 @@ const Recipes = () => {
                     </div>
                 ) : error ? (
                     <div>Error al cargar las recetas. Inténtalo de nuevo más tarde.</div>
+                ) : noResults ? (
+                    <div>No se encontraron resultados para tu búsqueda.</div>
                 ) : (
-                    <div className="row row-cols-1 row-cols-md-4 g-4">
-                        {recipes.map((recipe) => (
-                            <div key={recipe.id} className="col">
-                                <div className="card h-100 card-recipe">
-                                    <img src={recipe.image} alt={recipe.title} className="card-img-top" />
-                                    <div className="card-body card_body">
-                                        <Link to={`/recipes/${recipe.id}`} className="link-button title">
-                                            {translatedTitles[recipe.id]}
-                                        </Link>
-                                        {nutritionData[recipe.id] ? (
-                                            <div className="nutrition-info">
-                                                <p>Calorías: {nutritionData[recipe.id].calories}</p>
-                                                <p>Carbohidratos: {nutritionData[recipe.id].carbs}</p>
-                                                <p>Grasas: {nutritionData[recipe.id].fat}</p>
-                                                <p>Proteínas: {nutritionData[recipe.id].protein}</p>
-                                            </div>
-                                        ) : (
-                                            <p>Cargando información nutricional...</p>
-                                        )}
+                    <>
+                        <div className="row row-cols-1 row-cols-md-4 g-4">
+                            {currentRecipes.map((recipe) => (
+                                <div key={recipe.id} className="col">
+                                    <div className="card h-100 tarjeta-receta">
+                                        <img src={recipe.image} alt={recipe.title} className="card-img-top" />
+                                        <div className="card-body cuerpo-tarjeta">
+                                            <Link to={`/recipes/${recipe.id}`} className="link titulo-tarjeta">
+                                                {translatedTitles[recipe.id] || recipe.title}
+                                            </Link>
+                                            {nutritionData[recipe.id] ? (
+                                                <div className="nutrition-info">
+                                                    <p>Calorías: {nutritionData[recipe.id].calories}</p>
+                                                    <p>Carbohidratos: {nutritionData[recipe.id].carbs}</p>
+                                                    <p>Grasas: {nutritionData[recipe.id].fat}</p>
+                                                    <p>Proteínas: {nutritionData[recipe.id].protein}</p>
+                                                </div>
+                                            ) : (
+                                                <p>Cargando información nutricional...</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                        <div className="pagination">
+                            <nav aria-label="Page-navigation">
+                                <ul className="pagination justify-content-center">
+                                    <li className="page-item">
+                                        <button
+                                            className="page-link"
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            Anterior
+                                        </button>
+                                    </li>
+                                    {[...Array(totalPages)].map((_, index) => (
+                                        <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => handlePageChange(index + 1)}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className="page-item">
+                                        <button
+                                            className="page-link"
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

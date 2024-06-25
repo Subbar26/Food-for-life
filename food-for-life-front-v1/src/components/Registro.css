@@ -5,6 +5,9 @@
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 h2 {
@@ -44,7 +47,7 @@ h2 {
 .radio-group {
     display: flex;
     gap: 1px;
-    align-items: center;
+
 }
 
 .radio-group input {
@@ -55,16 +58,15 @@ h2 {
 .radio-group .form-check-inline {
     display: flex;
     align-items: center;
-
+    margin: auto;
 }
 
 .radio-group .form-check-label {
-    margin-left: 10px; 
     align-items: center;
 }
 
 .radio-group input[type="radio"] {
-    margin-right: 15px; 
+    margin-right: 10px;
 }
 
 .error {
