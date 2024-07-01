@@ -6,16 +6,17 @@ import './Header.css';
 
 const Header = () => {
     const location = useLocation();
-    
+
     if (location.pathname === '/recipes') {
         return null;
     }
 
     const commonLinks = (
         <div className="btn-group access-buttons">
-            {location.pathname !== '/login' && <a href="/login" className="breadcrumb-item active">Ingresar</a>}
-            {location.pathname !== '/registro' && <a href="/registro" className="breadcrumb-item active">Registrarse</a>}
-            <a href="/recipes" className="breadcrumb-item active">Recetas</a>
+            {location.pathname === '/pagina_principal' && <a href="/recipes" className="breadcrumb-item active">Recetas</a>}
+            {location.pathname !== '/pagina_principal' && location.pathname !== '/login' && <a href="/login" className="breadcrumb-item active">Ingresar</a>}
+            {location.pathname !== '/pagina_principal' && location.pathname !== '/registro' && <a href="/registro" className="breadcrumb-item active">Registrarse</a>}
+            {location.pathname !== '/pagina_principal' && <a href="/recipes" className="breadcrumb-item active">Recetas</a>}
         </div>
     );
 

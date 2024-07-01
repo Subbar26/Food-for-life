@@ -235,8 +235,9 @@ const Register = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary">Siguiente</button>
-                <a href='/login'><button type="button" className="btn btn-secondary">Cancelar</button></a>
+                <button type="submit" className="btn btn-primary boton-primario">Siguiente</button>
+                <a href='/login'><button type="button" className="btn btn-secondary boton-secundario">Cancelar</button></a>
+                <p></p>
                 <p></p>
                 <p>¿Ya tienes una cuenta? <a href="/login" className="icon-link link-button">Inicia sesión aquí</a></p>
             </form>
