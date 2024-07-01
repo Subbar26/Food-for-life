@@ -1,0 +1,51 @@
+.custom-card {
+    padding: 20px;
+}
+
+.results-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.result-item input {
+    margin-right: 10px;
+}
+
+.calories {
+    margin-left: auto;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+}
+
+.selected-items-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.selected-item {
+    margin-bottom: 5px;
+}
+
+.total-calories {
+    margin-top: 10px;
+    font-weight: bold;
+}
