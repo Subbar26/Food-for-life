@@ -12,6 +12,7 @@ const Login = () => {
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const validate = () => {
@@ -82,7 +83,7 @@ const Login = () => {
                         <div className="form-group mb-3 contenedor-formulario">
                             <div className="input-group">
                                 <input
-                                    type="emailPlease"
+                                    type="email"
                                     className={`form-control pastel-input`}
                                     placeholder='Correo electrónico'
                                     name="email"
@@ -108,7 +109,7 @@ const Login = () => {
                         <div className="form-group mb-3">
                             <div className="input-group">
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     className={`form-control pastel-input`}
                                     placeholder='Contraseña'
                                     name="password"
@@ -123,6 +124,9 @@ const Login = () => {
                                     }}
                                 />
                                 <div className="input-group-append">
+                                    <span className="input-group-text" onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+                                        {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+                                    </span>
                                     <span className="input-group-text">
                                         {password && !passwordError ? <i className="bi bi-check-circle text-success"></i> : ''}
                                         {passwordError ? <i className="bi bi-x-circle text-danger"></i> : ''}
