@@ -1,83 +1,102 @@
-.custom-card {
-    border-radius: 10px;
+.register-container {
+    max-width: 600px;
+    margin: 0 auto;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.accordion-button.custom-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
+h2 {
+    text-align: center;
+    color: #4CAF50;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section h3 {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: bold;
-    text-transform: uppercase;
 }
 
-.accordion-button.custom-button:not(.collapsed) {
-    color: white;
-    background-color: #0056b3;
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.accordion-button:focus {
-    box-shadow: none;
-}
-
-.accordion-header h5 {
-    margin-bottom: 0;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-.form-check-input {
-    margin-left: 0;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-
-.d-flex {
+.radio-group {
     display: flex;
+    gap: 1px;
+
 }
 
-.justify-content-end {
-    justify-content: flex-end;
+.radio-group input {
+    margin-top: 3px;
+    align-items: center;
 }
 
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    border-radius: 0.2rem;
+.radio-group .form-check-inline {
+    display: flex;
+    align-items: center;
+    margin: auto;
 }
 
-.d-flex > .btn {
-    flex: 1 1 auto;
-    max-width: 150px;
+.radio-group .form-check-label {
+    align-items: center;
 }
 
-.progress {
+.radio-group input[type="radio"] {
+    margin-right: 10px;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.boton-primario {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.boton-secundario {
+    background-color: #ccc;
+    color: #000;
+}
+
+.btn + .btn {
     margin-top: 10px;
 }
 
-.pie-chart {
-    max-width: 200px;
-    margin: 0 auto;
+.form-check-label {
+    display: flex;
+    align-items: center;
 }
