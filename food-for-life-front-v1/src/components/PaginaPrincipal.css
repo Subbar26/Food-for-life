@@ -1,10 +1,59 @@
-.custom-card {
-    border-radius: 10px;
-    padding: 20px;
-    background-color: #f8f9fa;
+/* Página Principal - Diseño Profesional y Responsivo */
+
+/* Tipografía */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
 }
 
-.accordion-button.custom-button {
+/* Contenedor principal */
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Cambiado para que el contenido se alinee en la parte superior */
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Tarjeta principal */
+.main-card {
+    border-radius: 15px;
+    padding: 30px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 80%; /* Ajuste del ancho al 80% del contenedor */
+    max-width: 1500px; /* Ancho máximo */
+    margin: auto;
+}
+
+.main-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Encabezado de la tarjeta */
+.text-center {
+    text-align: center;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mb-5 {
+    margin-bottom: 3rem !important;
+}
+
+/* Botones de acordeón */
+.accordion-button-custom {
     background-color: #007bff;
     color: white;
     border: none;
@@ -12,86 +61,122 @@
     text-transform: uppercase;
 }
 
-.accordion-button.custom-button:not(.collapsed) {
+.accordion-button-custom:not(.collapsed) {
     color: white;
     background-color: #0056b3;
 }
 
-.accordion-button:focus {
+.accordion-button-custom:focus {
     box-shadow: none;
 }
 
-.accordion-header h5 {
+/* Encabezado del acordeón */
+.accordion-header-custom h5 {
     margin-bottom: 0;
 }
 
-.table-hover tbody tr:hover {
+/* Tabla personalizada */
+.table-hover-custom tbody tr:hover {
     background-color: #f1f1f1;
 }
 
-.form-check-input {
+/* Entrada personalizada */
+.form-check-input-custom {
     margin-left: 0;
 }
 
-.btn-primary {
+/* Botones personalizados */
+.btn-primary-custom {
     background-color: #007bff;
     border-color: #007bff;
 }
 
-.btn-primary:hover {
+.btn-primary-custom:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
 
-.btn-secondary {
+.btn-secondary-custom {
     background-color: #6c757d;
     border-color: #6c757d;
 }
 
-.btn-secondary:hover {
+.btn-secondary-custom:hover {
     background-color: #5a6268;
     border-color: #545b62;
 }
 
-.d-flex {
-    display: flex;
-}
 
-.justify-content-end {
-    justify-content: flex-end;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    border-radius: 0.2rem;
-}
-
-.d-flex > .btn {
-    flex: 1 1 auto;
-    max-width: 150px;
-}
-
-.progress {
-    margin-top: 10px;
-}
-
-.pie-chart {
+.pie-chart-custom {
     max-width: 200px;
     margin: 0 auto;
 }
 
-.btn-danger {
+/* Botón de eliminación personalizado */
+.btn-danger-custom {
     background-color: #dc3545;
     border-color: #dc3545;
 }
 
-.btn-danger:hover {
+.btn-danger-custom:hover {
     background-color: #c82333;
     border-color: #bd2130;
 }
 
-.cerrar-sesion {
+/* Botón de cerrar sesión */
+.cerrar-sesion-custom {
     margin-top: 20px;
+    text-align: center;
+}
+
+.btn-logout {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-logout:hover {
+    background-color: #c82333;
+    color: white;
+}
+
+
+
+
+/* Estilos responsivos */
+@media (max-width: 1500px) {
+    .main-card {
+        padding: 20px;
+        width: 90%; /* Ajuste del ancho al 90% en pantallas más pequeñas */
+    }
+
+    .btn {
+        font-size: 0.9rem;
+    }
+
+    .accordion-button-custom {
+        font-size: 0.9rem;
+    }
+
+    .pie-chart-custom {
+        max-width: 150px;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 10px;
+    }
+
+    .main-card {
+        padding: 15px;
+    }
 }

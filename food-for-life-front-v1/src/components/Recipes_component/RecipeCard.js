@@ -1,12 +1,13 @@
 import { faClock, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import recipeApi from '../../../src/apis/recipeApi';
 import './RecipeCard.css';
 
 const RecipeCard = () => {
     const { recipeId } = useParams();
+    const navigate = useNavigate();
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -107,6 +108,17 @@ const RecipeCard = () => {
         return null;
     }
 
+    const handleBackToRecipes = () => {
+        const searchQuery = localStorage.getItem('searchQuery');
+        const searchResults = JSON.parse(localStorage.getItem('searchResults'));
+
+        if (searchQuery && searchResults) {
+            navigate('/recipes', { state: { searchQuery, searchResults } });
+        } else {
+            navigate('/recipes');
+        }
+    };
+
     return (
         <div className="center-container">
             <div className="container">
@@ -168,7 +180,7 @@ const RecipeCard = () => {
                                 </div>
                             </div>
                         </div>
-                        <Link to="/recipes" className="back-button">← Volver a la búsqueda de recetas</Link>
+                        <button onClick={handleBackToRecipes} className="back-button">← Volver a la búsqueda de recetas</button>
                     </div>
                 </div>
             </div>

@@ -7,9 +7,16 @@ import './Header.css';
 const Header = () => {
     const location = useLocation();
 
-    if (location.pathname === '/recipes') {
+    // Verificar si la ruta actual es /recipes o comienza con /recipes/
+    if (location.pathname.startsWith('/recipes')) {
         return null;
     }
+
+    const handleLogoClick = (e) => {
+        if (location.pathname === '/pagina_principal') {
+            e.preventDefault();
+        }
+    };
 
     const commonLinks = (
         <div className="btn-group access-buttons">
@@ -24,7 +31,7 @@ const Header = () => {
         <header className="d-flex justify-content-between align-items-center contenedor_header">
             <div className="d-flex align-items-center contenedor2">
                 <img src={logo} alt="Logo" className="app-icon" />
-                <a className="breadcrumb-item active title-page" aria-current="page" href="/">FoodForLife</a>
+                <a className="breadcrumb-item active title-page" aria-current="page" href="/" onClick={handleLogoClick}>FoodForLife</a>
             </div>
             {commonLinks}
         </header>

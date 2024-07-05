@@ -1,19 +1,30 @@
 import axios from 'axios';
-import 'bootstrap-icons/font/bootstrap-icons.css'; // Importar los íconos de Bootstrap
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png';
-import './Login.css'; // Importar el CSS actualizado
+import './Login.css';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [verificationCode, setVerificationCode] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [loginError, setLoginError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [showVerificationInput, setShowVerificationInput] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/pagina_principal');
+        }
+    }, [navigate]);
 
     const validate = () => {
         let valid = true;
@@ -43,23 +54,30 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         if (validate()) {
+            setLoading(true);
             try {
                 const response = await axios.post('http://localhost:8080/auth/login', { email, password });
-                const token = response.data.token;
-                localStorage.setItem('token', token);
-                console.log('Inicio de sesión exitoso');
-                navigate('/pagina_principal'); // Redirige al usuario a /pagina_principal
+                localStorage.setItem('token', response.data.token);
+                setLoginError('');
+                setShowVerificationInput(true);
+                setLoading(false);
             } catch (error) {
-                if (error.response.status === 400) {
-                    if (error.response.data.includes("correo electrónico")) {
-                        setLoginError("El correo electrónico no está registrado");
-                    } else {
-                        setLoginError("La contraseña es incorrecta");
-                    }
-                } else {
-                    console.error('Error:', error);
-                }
+                setLoading(false);
+                setLoginError('Correo electrónico o contraseña incorrectos');
+                console.error('Error:', error);
             }
+        }
+    };
+
+    const handleVerifyCode = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('http://localhost:8080/auth/verify-code', { email, code: verificationCode });
+            setLoginError('');
+            navigate('/pagina_principal');
+        } catch (error) {
+            setLoginError('Código de verificación incorrecto');
+            console.error('Error:', error);
         }
     };
 
@@ -71,22 +89,18 @@ const Login = () => {
                         <h1 className="card-title">Iniciar sesión</h1>
                         <img src={logo} alt="Logo" className="tamaño-imagen" />
                     </div>
-                    <form onSubmit={handleLogin} className="mt-2 formulario">
+                    <form onSubmit={showVerificationInput ? handleVerifyCode : handleLogin} className="mt-2 formulario">
                         {loginError && (
-                            <div className="alert alert-danger d-flex align-items-center" role="alert">
-                                <svg className="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Danger:">
-                                    <use xlinkHref="#exclamation-triangle-fill" />
-                                </svg>
-                                <div style={{ fontSize: '0.9rem' }}>{loginError}</div>
+                            <div className="alert alert-danger" role="alert">
+                                <i className="bi bi-exclamation-triangle-fill me-2"></i>{loginError}
                             </div>
                         )}
                         <div className="form-group mb-3 contenedor-formulario">
                             <div className="input-group">
                                 <input
                                     type="email"
-                                    className={`form-control pastel-input`}
+                                    className={`form-control pastel-input ${emailError ? 'is-invalid' : ''}`}
                                     placeholder='Correo electrónico'
-                                    name="email"
                                     value={email}
                                     onChange={(e) => {
                                         setEmail(e.target.value);
@@ -96,6 +110,7 @@ const Login = () => {
                                             setEmailError('');
                                         }
                                     }}
+                                    disabled={showVerificationInput}
                                 />
                                 <div className="input-group-append">
                                     <span className="input-group-text">
@@ -110,9 +125,8 @@ const Login = () => {
                             <div className="input-group">
                                 <input
                                     type={showPassword ? 'text' : 'password'}
-                                    className={`form-control pastel-input`}
+                                    className={`form-control pastel-input ${passwordError ? 'is-invalid' : ''}`}
                                     placeholder='Contraseña'
-                                    name="password"
                                     value={password}
                                     onChange={(e) => {
                                         setPassword(e.target.value);
@@ -122,6 +136,7 @@ const Login = () => {
                                             setPasswordError('');
                                         }
                                     }}
+                                    disabled={showVerificationInput}
                                 />
                                 <div className="input-group-append">
                                     <span className="input-group-text" onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
@@ -135,9 +150,26 @@ const Login = () => {
                             </div>
                             {passwordError && <div className="invalid-feedback">{passwordError}</div>}
                         </div>
-                        <button className="btn btn-success w-100">Iniciar sesión</button>
-                        <p></p>
-                        <p>¿No tienes una cuenta? <a href="/registro" className="icon-link link-button">Regístrate aquí</a></p>
+                        {showVerificationInput && (
+                            <div className="form-group mb-3 verification-input">
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        className="form-control pastel-input"
+                                        placeholder="Código de verificación"
+                                        value={verificationCode}
+                                        onChange={(e) => setVerificationCode(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <button className="btn btn-success w-100" disabled={loading}>
+                            {loading ? 'Iniciando sesión...' : showVerificationInput ? 'Verificar código' : 'Iniciar sesión'}
+                        </button>
+                        <p className="mt-3">
+                            <Link to="/recuperar" className="link-button">¿Olvidaste tu contraseña?</Link>
+                        </p>
+                        <p>¿No tienes una cuenta? <Link to="/registro" className="link-button">Regístrate aquí</Link></p>
                     </form>
                 </div>
             </div>

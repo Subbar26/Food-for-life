@@ -1,10 +1,12 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
-import './PaginaPrincipal.css'; // Archivo CSS personalizado
+import './PaginaPrincipal.css';
 import translateText from './Recipes_component/translateApi';
 
 // Registrar elementos de Chart.js
@@ -12,7 +14,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const PaginaPrincipal = () => {
     const [userName, setUserName] = useState('');
-    const [userId, setUserId] = useState(null); // Añadir userId para cargar alimentos
+    const [userId, setUserId] = useState(null);
     const [idr, setIdr] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -25,9 +27,15 @@ const PaginaPrincipal = () => {
         Cena: [],
         Otros: []
     });
-
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    
     useEffect(() => {
         const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
         axios.get('http://localhost:8080/auth/idr', {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -35,35 +43,52 @@ const PaginaPrincipal = () => {
         })
             .then(response => {
                 setUserName(response.data.name);
-                setUserId(response.data.userId); // Guardar userId
                 setIdr(response.data.idr);
-
-                // Cargar los alimentos del usuario
-                return axios.get(`http://localhost:8080/api/v1/alimentos/listar/${response.data.userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-            })
-            .then(response => {
-                const alimentos = response.data;
-                const groupedMeals = {
-                    Desayuno: [],
-                    Almuerzo: [],
-                    Cena: [],
-                    Otros: []
-                };
-
-                alimentos.forEach(alimento => {
-                    groupedMeals[alimento.tipoComida].push(alimento);
-                });
-
-                setMeals(groupedMeals);
+                setUserId(response.data.id);
             })
             .catch(error => {
-                console.error('Error al obtener los detalles del usuario o alimentos:', error);
+                console.error('Error al obtener los detalles del usuario:', error);
             });
     }, []);
+
+    const fetchMeals = useCallback(async (mealType) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/alimentos/listar`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                params: {
+                    usuarioId: userId,
+                    tipoComida: mealType,
+                    fecha: selectedDate.toISOString().split('T')[0] // Enviar la fecha seleccionada en el formato adecuado
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Error al obtener los alimentos de tipo ${mealType}:`, error);
+            return [];
+        }
+    }, [userId, selectedDate]);
+
+    const loadMeals = useCallback(async () => {
+        const desayuno = await fetchMeals('Desayuno');
+        const almuerzo = await fetchMeals('Almuerzo');
+        const cena = await fetchMeals('Cena');
+        const otros = await fetchMeals('Otros');
+        setMeals({
+            Desayuno: desayuno,
+            Almuerzo: almuerzo,
+            Cena: cena,
+            Otros: otros
+        });
+    }, [fetchMeals]);
+
+    useEffect(() => {
+        if (userId) {
+            loadMeals();
+        }
+    }, [userId, selectedDate, loadMeals]);
 
     useEffect(() => {
         const handleSearch = async () => {
@@ -138,29 +163,39 @@ const PaginaPrincipal = () => {
             const newMeals = { ...meals };
             newMeals[activeAccordion].push(ingredientWithTranslatedName);
             setMeals(newMeals);
-
+    
             // Guardar el alimento en la base de datos
             const token = localStorage.getItem('token');
+            console.log('Saving ingredient with the following details:');
+            console.log('Nombre:', translatedName);
+            console.log('Usuario ID:', userId);
+            console.log('Tipo Comida:', activeAccordion);
+            console.log('Datos Nutricionales:', ingredientWithTranslatedName.nutrition.nutrients);
+    
+            const alimento = {
+                nombre: translatedName,
+                grasas: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Fat')?.amount || 0,
+                carbohidratos: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Carbohydrates')?.amount || 0,
+                proteinas: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Protein')?.amount || 0,
+                calorias: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Calories')?.amount || 0,
+            };
+    
             try {
-                await axios.post('http://localhost:8080/api/v1/alimentos/agregar', {
-                    nombre: translatedName,
-                    grasas: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Fat').amount,
-                    carbohidratos: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Carbohydrates').amount,
-                    proteinas: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Protein').amount,
-                    calorias: ingredientWithTranslatedName.nutrition.nutrients.find(n => n.name === 'Calories').amount,
-                    tipoComida: activeAccordion,
-                }, {
+                await axios.post('http://localhost:8080/api/v1/alimentos/agregar', alimento, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     },
                     params: {
-                        usuarioId: userId // Usamos el ID del usuario
+                        usuarioId: userId,
+                        tipoComida: activeAccordion,
+                        fecha: selectedDate.toISOString().split('T')[0] // Enviar la fecha seleccionada como parámetro
                     }
                 });
+                loadMeals(); // Volver a cargar las comidas después de guardar
             } catch (error) {
                 console.error('Error al guardar el alimento:', error);
             }
-
+    
             setSelectedIngredient(null);
             setIsIngredientSelected(false);
             setSearchResults([]);
@@ -168,6 +203,7 @@ const PaginaPrincipal = () => {
             setActiveAccordion(null); // Ocultar el buscador después de agregar
         }
     };
+    
 
     const handleCancel = () => {
         setActiveAccordion(null);
@@ -180,28 +216,51 @@ const PaginaPrincipal = () => {
     const handleDeleteIngredient = async (mealType, index) => {
         const newMeals = { ...meals };
         const ingredientToDelete = newMeals[mealType][index];
-
+    
         // Eliminar el alimento de la base de datos
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:8080/api/v1/alimentos/eliminar/${ingredientToDelete.id}`, {
+            // Obtener el alimento usuario específico desde el backend
+            const response = await axios.get('http://localhost:8080/api/v1/alimentos/buscar', {
                 headers: {
                     Authorization: `Bearer ${token}`
+                },
+                params: {
+                    usuarioId: userId,
+                    tipoComida: mealType,
+                    nombre: ingredientToDelete.nombre,
+                    fecha: selectedDate.toISOString().split('T')[0] // Agregar la fecha seleccionada
                 }
             });
+            
+            const alimentoUsuarioList = response.data;
+            if (alimentoUsuarioList.length > 0) {
+                const alimentoUsuario = alimentoUsuarioList[0]; // Obtener el primero que coincide
+                await axios.delete('http://localhost:8080/api/v1/alimentos/eliminar', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    params: {
+                        usuarioId: userId,
+                        alimentoId: alimentoUsuario.alimento.id,
+                        tipoComida: mealType
+                    }
+                });
+    
+                // Actualizar la lista de comidas en el estado
+                newMeals[mealType] = newMeals[mealType].filter((_, idx) => idx !== index);
+                setMeals(newMeals);
+            }
         } catch (error) {
             console.error('Error al eliminar el alimento:', error);
         }
-
-        newMeals[mealType].splice(index, 1);
-        setMeals(newMeals);
     };
-
+    
     const calculateTotals = (meal) => {
-        const totalFat = meal.reduce((acc, item) => acc + (item.nutrition.nutrients.find(n => n.name === 'Fat')?.amount || 0), 0);
-        const totalCarbs = meal.reduce((acc, item) => acc + (item.nutrition.nutrients.find(n => n.name === 'Carbohydrates')?.amount || 0), 0);
-        const totalProtein = meal.reduce((acc, item) => acc + (item.nutrition.nutrients.find(n => n.name === 'Protein')?.amount || 0), 0);
-        const totalCalories = meal.reduce((acc, item) => acc + (item.nutrition.nutrients.find(n => n.name === 'Calories')?.amount || 0), 0);
+        const totalFat = meal.reduce((acc, item) => acc + (item.nutrition?.nutrients.find(n => n.name === 'Fat')?.amount || item.grasas || 0), 0);
+        const totalCarbs = meal.reduce((acc, item) => acc + (item.nutrition?.nutrients.find(n => n.name === 'Carbohydrates')?.amount || item.carbohidratos || 0), 0);
+        const totalProtein = meal.reduce((acc, item) => acc + (item.nutrition?.nutrients.find(n => n.name === 'Protein')?.amount || item.proteinas || 0), 0);
+        const totalCalories = meal.reduce((acc, item) => acc + (item.nutrition?.nutrients.find(n => n.name === 'Calories')?.amount || item.calorias || 0), 0);
         return { 
             totalFat: isNaN(totalFat) ? 0 : totalFat, 
             totalCarbs: isNaN(totalCarbs) ? 0 : totalCarbs, 
@@ -217,7 +276,8 @@ const PaginaPrincipal = () => {
     };
 
     const dayTotals = calculateDayTotals();
-    const idrPercentage = idr ? ((dayTotals.totalCalories / idr) * 100).toFixed(2) : 0;
+    const idrPercentage = idr ? Math.min(((dayTotals.totalCalories / idr) * 100).toFixed(2), 100) : 0;
+    const extraCalories = dayTotals.totalCalories > idr ? (dayTotals.totalCalories - idr).toFixed(2) : 0;
 
     const pieData = {
         labels: ['Carbohidratos', 'Grasas', 'Proteínas'],
@@ -235,10 +295,10 @@ const PaginaPrincipal = () => {
     };
 
     return (
-        <div className='container mt-5'>
+        <div className='page-container'>
             <div className="row justify-content-center">
                 <div className="col-md-8">
-                    <div className="card card-body shadow-sm custom-card">
+                    <div className="card card-body shadow-sm main-card">
                         <h2 className='text-center mb-4'>Mi diario de alimentos</h2>
                         <p className='text-center'>Hola, {userName}</p>
                         {idr !== null && (
@@ -247,6 +307,16 @@ const PaginaPrincipal = () => {
                             </div>
                         )}
 
+                        <div className="text-center mb-4">
+                            <DatePicker
+                                selected={selectedDate}
+                                onChange={(date) => setSelectedDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control"
+                                maxDate={new Date()}
+                            />
+                        </div>
+
                         <div className="card mb-5">
                             <div className="card-header">
                                 Resumen del Día
@@ -254,14 +324,19 @@ const PaginaPrincipal = () => {
                             <div className="card-body">
                                 <div className="row">
                                     <div className="col-md-4">
-                                        <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center flex-column">
                                             <div className="me-3">
                                                 <h5>{idrPercentage}% de IDR</h5>
                                                 <p>({dayTotals.totalCalories.toFixed(2)} cal)</p>
                                             </div>
-                                            <div className="progress" style={{ height: '20px', width: '100%' }}>
+                                            <div className="progress progress-custom" style={{ height: '20px', width: '100%' }}>
                                                 <div className="progress-bar" role="progressbar" style={{ width: `${idrPercentage}%` }} aria-valuenow={idrPercentage} aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
+                                            {idrPercentage >= 100 && (
+                                                <div className="alert alert-success mt-3" role="alert">
+                                                    ¡Felicitaciones! Has cumplido con tu ingesta diaria de calorías. {extraCalories > 0 && `Te has excedido por ${extraCalories} calorías.`}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="col-md-4">
@@ -288,7 +363,7 @@ const PaginaPrincipal = () => {
                                         <h5 className="accordion-header">{meal}</h5>
                                     </div>
                                     {meals[meal].length > 0 && (
-                                        <table className="table table-hover">
+                                        <table className="table table-hover table-hover-custom">
                                             <thead className="table-light">
                                                 <tr>
                                                     <th>Artículo</th>
@@ -302,13 +377,13 @@ const PaginaPrincipal = () => {
                                             <tbody>
                                                 {meals[meal].map((ingredient, idx) => (
                                                     <tr key={idx}>
-                                                        <td>{ingredient.name}</td>
-                                                        <td>{ingredient.nutrition.nutrients.find(n => n.name === 'Fat')?.amount}</td>
-                                                        <td>{ingredient.nutrition.nutrients.find(n => n.name === 'Carbohydrates')?.amount}</td>
-                                                        <td>{ingredient.nutrition.nutrients.find(n => n.name === 'Protein')?.amount}</td>
-                                                        <td>{ingredient.nutrition.nutrients.find(n => n.name === 'Calories')?.amount}</td>
+                                                        <td>{ingredient.nombre || ingredient.name}</td>
+                                                        <td>{ingredient.grasas || ingredient.nutrition?.nutrients.find(n => n.name === 'Fat')?.amount}</td>
+                                                        <td>{ingredient.carbohidratos || ingredient.nutrition?.nutrients.find(n => n.name === 'Carbohydrates')?.amount}</td>
+                                                        <td>{ingredient.proteinas || ingredient.nutrition?.nutrients.find(n => n.name === 'Protein')?.amount}</td>
+                                                        <td>{ingredient.calorias || ingredient.nutrition?.nutrients.find(n => n.name === 'Calories')?.amount}</td>
                                                         <td>
-                                                            <button className="btn btn-danger btn-sm" onClick={() => handleDeleteIngredient(meal, idx)}>Eliminar</button>
+                                                            <button className="btn btn-danger btn-sm btn-danger-custom" onClick={() => handleDeleteIngredient(meal, idx)}>Eliminar</button>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -327,13 +402,14 @@ const PaginaPrincipal = () => {
                                     )}
                                     <h2 className="accordion-header">
                                         <button
-                                            className="accordion-button collapsed custom-button"
+                                            className="accordion-button collapsed custom-button accordion-button-custom"
                                             type="button"
                                             data-bs-toggle="collapse"
                                             data-bs-target={`#flush-collapse${index}`}
                                             aria-expanded={activeAccordion === meal}
                                             aria-controls={`flush-collapse${index}`}
                                             onClick={() => handleAccordionClick(meal)}
+                                            disabled={idrPercentage >= 100}
                                         >
                                             + Añadir artículo
                                         </button>
@@ -354,6 +430,7 @@ const PaginaPrincipal = () => {
                                                             placeholder="Buscar ingrediente"
                                                             value={searchQuery}
                                                             onChange={(e) => setSearchQuery(e.target.value)}
+                                                            disabled={idrPercentage >= 100}
                                                         />
                                                     </div>
 
@@ -366,10 +443,12 @@ const PaginaPrincipal = () => {
                                                                 >
                                                                     <div className="form-check">
                                                                         <input
-                                                                            className="form-check-input"
+                                                                            className="form-check-input form-check-input-custom"
                                                                             type="checkbox"
                                                                             value={result.id}
                                                                             onChange={() => handleSelectIngredient(result.id)}
+                                                                            checked={selectedIngredient && selectedIngredient.id === result.id}
+                                                                            disabled={idrPercentage >= 100}
                                                                         />
                                                                         <label className="form-check-label ms-2">
                                                                             {result.name}
@@ -382,16 +461,16 @@ const PaginaPrincipal = () => {
 
                                                     <div className="d-flex justify-content-end">
                                                         <button
-                                                            className="btn btn-primary me-2"
+                                                            className="btn btn-primary me-2 btn-primary-custom"
                                                             style={{ flex: '1 1 auto', maxWidth: '150px' }}
                                                             onClick={handleSaveIngredient}
-                                                            disabled={!isIngredientSelected}
+                                                            disabled={!isIngredientSelected || idrPercentage >= 100}
                                                         >
                                                             Agregar
                                                         </button>
                                                         <p></p>
                                                         <button
-                                                            className="btn btn-secondary"
+                                                            className="btn btn-secondary btn-secondary-custom"
                                                             style={{ flex: '1 1 auto', maxWidth: '150px' }}
                                                             onClick={handleCancel}
                                                         >
@@ -407,7 +486,7 @@ const PaginaPrincipal = () => {
                         })}
                     </div>
                 </div>
-                <footer className="cerrar-sesion">
+                <footer className="cerrar-sesion-custom">
                     <Link to="#" onClick={() => {
                         localStorage.removeItem('token');
                         window.location.href = '/login';

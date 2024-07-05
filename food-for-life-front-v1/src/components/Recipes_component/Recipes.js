@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import loadingGif from '../../../src/images/Glowing ring.gif';
 import logo from '../../../src/images/logo.png';
 import recipeApi from '../../apis/recipeApi';
+import { useAuth } from '../AuthContext'; // Importar el contexto de autenticación
 import './Recipes.css';
 
 const Recipes = () => {
@@ -15,6 +16,9 @@ const Recipes = () => {
     const [noResults, setNoResults] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = 2;
+    const navigate = useNavigate(); // Usar useNavigate para redirecciones
+    const { isAuthenticated } = useAuth(); // Obtener el estado de autenticación
+    
 
     const translatedTitlesCache = useMemo(() => ({}), []);
 
@@ -47,72 +51,90 @@ const Recipes = () => {
         setTranslatedTitles(translatedTitles);
     }, [translateText]);
 
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            setLoading(true);
-            setNoResults(false); // Reset no results state before search
-            setError(null);
-            try {
-                const translatedQuery = await translateText(searchQuery, 'en');
-                const response = await recipeApi.get('/recipes/complexSearch', {
-                    params: {
-                        query: translatedQuery,
-                        number: 8,
-                        offset: 0,
-                        fields: 'title,summary,ingredients,tags,image',
-                    },
-                });
-                const results = response.data.results;
-                setRecipes(results);
-                if (results.length === 0) {
-                    setNoResults(true);
-                }
-                await translateRecipeTitles(results);
-                results.forEach(recipe => {
-                    fetchNutritionData(recipe.id);
-                });
-            } catch (error) {
-                setError(error);
-            } finally {
-                setLoading(false);
+    const fetchRecipes = useCallback(async () => {
+        setLoading(true);
+        setNoResults(false); // Reset no results state before search
+        setError(null);
+        try {
+            const translatedQuery = await translateText(searchQuery, 'en');
+            const response = await recipeApi.get('/recipes/complexSearch', {
+                params: {
+                    query: translatedQuery,
+                    number: 8,
+                    offset: 0,
+                    fields: 'title,summary,ingredients,tags,image',
+                },
+            });
+            const results = response.data.results;
+            setRecipes(results);
+            if (results.length === 0) {
+                setNoResults(true);
             }
-        };
+            await translateRecipeTitles(results);
+            results.forEach(recipe => {
+                fetchNutritionData(recipe.id);
+            });
 
-        if (searchQuery) {
-            fetchRecipes();
+            // Guardar la búsqueda y los resultados en el almacenamiento local
+            localStorage.setItem('searchQuery', searchQuery);
+            localStorage.setItem('searchResults', JSON.stringify(results));
+        } catch (error) {
+            setError(error);
+        } finally {
+            setLoading(false);
         }
     }, [searchQuery, translateText, translateRecipeTitles]);
 
-    useEffect(() => {
-        const fetchDefaultRecipes = async () => {
-            setLoading(true);
-            setNoResults(false); // Reset no results state before search
-            setError(null);
-            try {
-                const response = await recipeApi.get('/recipes/complexSearch', {
-                    params: {
-                        number: 8,
-                        fields: 'title,summary,ingredients,tags,image',
-                    },
-                });
-                const results = response.data.results;
-                setRecipes(results);
-                if (results.length === 0) {
-                    setNoResults(true);
-                }
-                await translateRecipeTitles(results);
-                results.forEach(recipe => {
-                    fetchNutritionData(recipe.id);
-                });
-            } catch (error) {
-                setError(error);
-            } finally {
-                setLoading(false);
+    const fetchDefaultRecipes = useCallback(async () => {
+        setLoading(true);
+        setNoResults(false); // Reset no results state before search
+        setError(null);
+        try {
+            const response = await recipeApi.get('/recipes/complexSearch', {
+                params: {
+                    number: 8,
+                    fields: 'title,summary,ingredients,tags,image',
+                },
+            });
+            const results = response.data.results;
+            setRecipes(results);
+            if (results.length === 0) {
+                setNoResults(true);
             }
-        };
-
-        fetchDefaultRecipes();
+            await translateRecipeTitles(results);
+            results.forEach(recipe => {
+                fetchNutritionData(recipe.id);
+            });
+        } catch (error) {
+            setError(error);
+        } finally {
+            setLoading(false);
+        }
     }, [translateRecipeTitles]);
+
+    useEffect(() => {
+        const savedSearchQuery = localStorage.getItem('searchQuery');
+        const savedSearchResults = JSON.parse(localStorage.getItem('searchResults'));
+
+        if (savedSearchQuery && savedSearchResults) {
+            setSearchQuery(savedSearchQuery);
+            setRecipes(savedSearchResults);
+            translateRecipeTitles(savedSearchResults);
+            savedSearchResults.forEach(recipe => {
+                fetchNutritionData(recipe.id);
+            });
+        } else {
+            fetchDefaultRecipes();
+        }
+    }, [fetchDefaultRecipes, translateRecipeTitles]);
+
+    useEffect(() => {
+        if (searchQuery === '') {
+            fetchDefaultRecipes();
+        } else {
+            fetchRecipes();
+        }
+    }, [searchQuery, fetchRecipes, fetchDefaultRecipes]);
 
     const fetchNutritionData = async (recipeId) => {
         try {
@@ -127,8 +149,26 @@ const Recipes = () => {
         setSearchQuery(event.target.value);
     };
 
+    const handleSearchKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            fetchRecipes();
+        }
+    };
+
+    const handleSearchClick = () => {
+        fetchRecipes();
+    };
+
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
+    };
+
+    const handleAuthRedirect = () => {
+        if (isAuthenticated) {
+            navigate('/pagina_principal');
+        } else {
+            navigate('/login');
+        }
     };
 
     const currentRecipes = recipes.slice((currentPage - 1) * 4, currentPage * 4);
@@ -136,25 +176,38 @@ const Recipes = () => {
     return (
         <div className="contenedor-pr">
             <div className="container container-recipes">
-                <header className="header header-recipes">
+                <header className="header-recipes">
                     <div className="nombre-cabecera">
                         <img src={logo} alt="Logo" className="app-icon icono-cabecera" />
                         Buscador de Recetas
                     </div>
+                    <div className="auth-link">
+                        <button className="btn btn-primary" onClick={handleAuthRedirect}>
+                            {isAuthenticated ? 'Ir a la página principal' : 'Iniciar sesión'}
+                        </button>
+                    </div>
+                </header>
+                <div className="search-container">
                     <div className="search-component">
-                        <img src="/icons8-search.svg" alt="Search Icon" className="search-icon" />
+                        <img 
+                            src="/icons8-search.svg" 
+                            alt="Search Icon" 
+                            className="search-icon" 
+                            onClick={handleSearchClick} // Añadir el manejador de clic
+                        />
                         <input
                             className="search-input"
                             type="text"
                             placeholder="Buscar Receta"
                             value={searchQuery}
                             onChange={handleSearchInputChange}
+                            onKeyPress={handleSearchKeyPress} // Añadir el manejador de evento de tecla
                         />
-                        <div className="pagination-info">
-                            <span>Página {currentPage} de {totalPages}</span>
-                        </div>
                     </div>
-                </header>
+                    <div className="pagination-info">
+                        <span>Página {currentPage} de {totalPages}</span>
+                    </div>
+                </div>
                 {loading ? (
                     <div className="loading-container">
                         <img src={loadingGif} alt="Cargando..." className="loading-gif" />
