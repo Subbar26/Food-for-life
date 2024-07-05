@@ -3,7 +3,9 @@ package com.example.food_for_life.food_for_life_backend.Model;
 import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,6 +61,10 @@ public class Usuario implements UserDetails {
 
     @Column(name = "idr")
     private Integer idr;
+
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<AlimentoUsuario> alimentosUsuario;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

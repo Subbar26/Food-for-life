@@ -4,6 +4,7 @@ import com.example.food_for_life.food_for_life_backend.Repository.UsuarioReposit
 import com.example.food_for_life.food_for_life_backend.Jwt.JwtService;
 import com.example.food_for_life.food_for_life_backend.Model.Role;
 import com.example.food_for_life.food_for_life_backend.Model.Usuario;
+import com.example.food_for_life.food_for_life_backend.Service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 
 import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +26,9 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UsuarioService usuarioService;
 
-    public AuthResponse login(LoginRequest request) {
+    public Map<String, Object> login(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("El correo electrónico no está registrado"));
 
@@ -38,7 +42,11 @@ public class AuthService {
 
         UserDetails userDetails = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
         String token = jwtService.getToken(userDetails);
-        return AuthResponse.builder().token(token).build();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("usuario", usuario);
+        return response;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -124,5 +132,11 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         return usuario.getNombreusuario();
+    }
+
+    public Integer getUserId(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("El usuario no existe"));
+        return usuario.getId();
     }
 }
